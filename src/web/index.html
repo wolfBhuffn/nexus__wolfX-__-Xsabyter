@@ -2,144 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEXUS // Mobile Command Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS // COMMAND CENTER</title>
     <style>
         :root {
             --bg-color: #0b0f19;
-            --card-bg: #111827;
-            --accent-color: #3b82f6;
-            --text-color: #f3f4f6;
-            --text-dim: #9ca3af;
+            --panel-bg: #111827;
             --border-color: #1f2937;
-            --success-color: #10b981;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; max-width: 600px; margin: 0 auto; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--text-main); }
+        .status-badge { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--success); font-weight: 600; }
+        .pulse { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: blink 2s infinite; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 16px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        header {
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .card-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 12px; font-weight: 600; }
 
-        h1 {
-            font-size: 1.25rem;
-            letter-spacing: 1px;
-            color: var(--accent-color);
-        }
+        .input-group { display: flex; flex-direction: column; gap: 10px; }
+        select, textarea, input, button { background: #1f2937; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 6px; font-size: 0.95rem; }
+        textarea { resize: vertical; min-height: 80px; }
+        button { background: var(--accent-color); font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: var(--accent-hover); }
 
-        .subtitle {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
+        .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .card h2 {
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-dim);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        select, input, textarea, button {
-            background: #1f2937;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            width: 100%;
-        }
-
-        button {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:active {
-            opacity: 0.8;
-        }
-
-        pre {
-            background: #030712;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            overflow-x: auto;
-            color: var(--success-color);
-            white-space: pre-wrap;
-        }
-
-        #status-output {
-            min-height: 80px;
-        }
+        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 180px; overflow-y: auto; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>NEXUS COMMAND CENTER</h1>
-        <div class="subtitle">wolfX-__-Xsabyter // Mobile Control</div>
+        <h1>NEXUS // HQ</h1>
+        <div class="status-badge">
+            <div class="pulse"></div> LIVE
+        </div>
     </header>
 
+    <!-- LOGGING PANEL -->
     <div class="card">
-        <h2>Quick Entry Log</h2>
+        <div class="card-title">Quick Entry Dispatch</div>
         <div class="input-group">
-            <select id="log-category">
-                <option value="idea">💡 Idea</option>
-                <option value="task">⚡ Task</option>
-                <option value="note">📝 Note</option>
-                <option value="milestone">🎯 Milestone</option>
+            <select id="categorySelect">
+                <option value="idea">💡 Idea / Note</option>
+                <option value="trade">📈 Trading / P&L Setup</option>
+                <option value="content">🐺 Wolf SaByter Content</option>
+                <option value="task">⚡ Task / Action Item</option>
             </select>
-            <input type="text" id="log-content" placeholder="Capture entry on the go...">
-            <button onclick="submitLog()">Save Entry</button>
+            <textarea id="logInput" placeholder="Enter dispatch content..."></textarea>
+            <button onclick="submitLog()">Transmit to GitHub</button>
         </div>
     </div>
 
+    <!-- SYSTEM MONITOR -->
     <div class="card">
-        <h2>System Status</h2>
-        <button onclick="checkStatus()" style="margin-bottom: 12px; background: #374151;">Run Health Diagnostics</button>
-        <pre id="status-output">Ready for input...</pre>
+        <div class="card-title">System Diagnostics</div>
+        <div class="grid-buttons">
+            <button class="quick-btn" onclick="checkStatus()">Check Engine Status</button>
+            <button class="quick-btn" onclick="clearTerminal()">Clear Console</button>
+        </div>
+    </div>
+
+    <!-- TERMINAL OUTPUT -->
+    <div class="card">
+        <div class="card-title">Console Output</div>
+        <div id="responseLog">NEXUS Command Center initialized... Ready for input.</div>
     </div>
 
     <script>
         async function submitLog() {
-            const category = document.getElementById('log-category').value;
-            const content = document.getElementById('log-content').value.trim();
-            if (!content) return alert("Please enter text before saving.");
+            const category = document.getElementById('categorySelect').value;
+            const content = document.getElementById('logInput').value;
+            const logBox = document.getElementById('responseLog');
+
+            if (!content) {
+                logBox.innerText = "[!] Please enter content before dispatching.";
+                return;
+            }
+
+            logBox.innerText = "[...] Transmitting payload to GitHub API...";
 
             try {
                 const res = await fetch('/api/log', {
@@ -148,23 +101,27 @@
                     body: JSON.stringify({ category, content })
                 });
                 const data = await res.json();
-                alert(data.message);
-                document.getElementById('log-content').value = '';
+                logBox.innerText = `[SUCCESS] ${data.message}`;
+                document.getElementById('logInput').value = '';
             } catch (err) {
-                alert("Failed to submit log: " + err);
+                logBox.innerText = `[ERROR] Failed to send dispatch: ${err}`;
             }
         }
 
         async function checkStatus() {
-            const out = document.getElementById('status-output');
-            out.textContent = "Running diagnostics...";
+            const logBox = document.getElementById('responseLog');
+            logBox.innerText = "[...] Fetching NEXUS diagnostics...";
             try {
                 const res = await fetch('/api/status');
                 const data = await res.json();
-                out.textContent = data.output;
+                logBox.innerText = data.output || "No output returned.";
             } catch (err) {
-                out.textContent = "Error fetching status: " + err;
+                logBox.innerText = `[ERROR] Failed to fetch status: ${err}`;
             }
+        }
+
+        function clearTerminal() {
+            document.getElementById('responseLog').innerText = "Console cleared.";
         }
     </script>
 </body>
