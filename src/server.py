@@ -3,14 +3,13 @@ import socketserver
 import json
 import subprocess
 from pathlib import Path
-import urllib.parse
-
-PORT = 5000
+import os
+# Render provides a dynamic PORT environment variable; default to 3000 locally
+PORT = int(os.environ.get("PORT", 3000))
 WEB_DIR = Path("src/web")
 
 class NexusHandler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
-        # Serve static web files from src/web
         if path == "/":
             return str(WEB_DIR / "index.html")
         return str(WEB_DIR / path.lstrip("/"))
@@ -39,13 +38,12 @@ class NexusHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.send_response_only(status)
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
 if __name__ == "__main__":
-    with socketserver.TCPServer(("", PORT), NexusHandler) as httpd:
-        print(f"[+] NEXUS Web Command Center live at http://localhost:{PORT}")
-        print(f"[+] Local Network Access: http://<your-mac-ip>:{PORT}")
+    server_address = ("0.0.0.0", PORT)
+    with socketserver.TCPServer(server_address, NexusHandler) as httpd:
+        print(f"[+] NEXUS Web Command Center live on port {PORT}")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
