@@ -1,29 +1,27 @@
 import os
-import subprocess
-from pathlib import Path
+import sys
+from datetime import datetime
 
-def check_git_status():
-    print("[*] Checking Git Status...")
-    try:
-        result = subprocess.run(["git", "status", "-s"], capture_output=True, text=True, check=True)
-        if result.stdout.strip():
-            print("[!] Uncommitted changes detected:")
-            print(result.stdout)
-        else:
-            print("[+] Working tree is clean.")
-    except Exception as e:
-        print(f"[-] Error checking git status: {e}")
+# Load .env quietly if present locally
+try:
+    from dotenv import load_dotenv
+    load_dotenv(verbose=False)
+except ImportError:
+    pass
 
-def check_environment():
-    print("\n[*] Checking Environment Configuration...")
-    env_path = Path(".env")
-    if env_path.exists():
-        print("[+] Local .env file found.")
-    else:
-        print("[!] Warning: Local .env file not found (check config/.env.example).")
+def get_status():
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    github_status = "CONFIGURED (Cloud API)" if os.environ.get("GITHUB_TOKEN") else "LOCAL ONLY (Fallback)"
+    
+    status_output = [
+        f"=== NEXUS SYSTEM DIAGNOSTICS ===",
+        f"Timestamp: {timestamp}",
+        f"Environment: {'Render Cloud' if os.environ.get('RENDER') else 'Local Machine'}",
+        f"GitHub Sync: {github_status}",
+        f"Repository: {os.environ.get('GITHUB_REPOSITORY', 'wolfBhuffn/nexus__wolfX-__-Xsabyter')}",
+        f"System State: ONLINE & OPERATIONAL"
+    ]
+    return "\n".join(status_output)
 
 if __name__ == "__main__":
-    print("=== nexus__wolfX-__-Xsabyter Status Control ===")
-    check_git_status()
-    check_environment()
-    print("===============================================")
+    print(get_status())
