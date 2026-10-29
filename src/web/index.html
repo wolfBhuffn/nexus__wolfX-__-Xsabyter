@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS // Mobile Command Center</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-color: #3b82f6;
+            --text-color: #f3f4f6;
+            --text-dim: #9ca3af;
+            --border-color: #1f2937;
+            --success-color: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-dim);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        select, input, textarea, button {
+            background: #1f2937;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        pre {
+            background: #030712;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            overflow-x: auto;
+            color: var(--success-color);
+            white-space: pre-wrap;
+        }
+
+        #status-output {
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>NEXUS COMMAND CENTER</h1>
+        <div class="subtitle">wolfX-__-Xsabyter // Mobile Control</div>
+    </header>
+
+    <div class="card">
+        <h2>Quick Entry Log</h2>
+        <div class="input-group">
+            <select id="log-category">
+                <option value="idea">💡 Idea</option>
+                <option value="task">⚡ Task</option>
+                <option value="note">📝 Note</option>
+                <option value="milestone">🎯 Milestone</option>
+            </select>
+            <input type="text" id="log-content" placeholder="Capture entry on the go...">
+            <button onclick="submitLog()">Save Entry</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>System Status</h2>
+        <button onclick="checkStatus()" style="margin-bottom: 12px; background: #374151;">Run Health Diagnostics</button>
+        <pre id="status-output">Ready for input...</pre>
+    </div>
+
+    <script>
+        async function submitLog() {
+            const category = document.getElementById('log-category').value;
+            const content = document.getElementById('log-content').value.trim();
+            if (!content) return alert("Please enter text before saving.");
+
+            try {
+                const res = await fetch('/api/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, content })
+                });
+                const data = await res.json();
+                alert(data.message);
+                document.getElementById('log-content').value = '';
+            } catch (err) {
+                alert("Failed to submit log: " + err);
+            }
+        }
+
+        async function checkStatus() {
+            const out = document.getElementById('status-output');
+            out.textContent = "Running diagnostics...";
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                out.textContent = data.output;
+            } catch (err) {
+                out.textContent = "Error fetching status: " + err;
+            }
+        }
+    </script>
+</body>
+</html>
