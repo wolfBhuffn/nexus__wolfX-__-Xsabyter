@@ -3,5 +3,10 @@
     "timestamp": "2026-10-29 23:03:22",
     "category": "IDEA",
     "content": "Test"
+  },
+  {
+    "timestamp": "2026-10-30 10:35:34",
+    "category": "PAYROLL_VAULT",
+    "content": "{\"hours_worked\": 80.0, \"hourly_rate\": 20.0, \"gross_pay\": 1600.0, \"estimated_net\": 1248.0, \"vault_distribution\": {\"household_bills\": 499.2, \"subaru_and_auto\": 249.6, \"kids_growth\": 187.2, \"tristate_home\": 187.2, \"trading_reserve\": 124.8}}"
   }
 ]
