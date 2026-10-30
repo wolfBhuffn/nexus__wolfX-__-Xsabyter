@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS // STRATEGY & ANALYTICS</title>
+    <title>NEXUS // LIVE ANALYTICS & TELEMETRY</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -15,6 +15,7 @@
             --text-dim: #9ca3af;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
@@ -30,61 +31,47 @@
 
         .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
         .stat-box { background: #1f2937; padding: 12px; border-radius: 6px; text-align: center; }
-        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--success); margin-top: 4px; }
+        .stat-val { font-size: 1.1rem; font-weight: 700; color: var(--success); margin-top: 4px; }
         .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; }
 
-        /* Simple ASCII/CSS Bar Graph Canvas */
-        .chart-container { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; font-family: monospace; font-size: 0.85rem; color: var(--text-main); height: 180px; display: flex; align-items: flex-end; gap: 8px; justify-content: space-around; overflow-x: auto; }
-        .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; flex: 1; }
-        .bar { width: 100%; background: var(--accent-color); border-radius: 4px 4px 0 0; transition: height 0.3s; }
-        .bar-label { font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; white-space: nowrap; }
+        .stream-box { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--success); max-height: 250px; overflow-y: auto; white-space: pre-wrap; }
 
         .strategy-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
         .strategy-row:last-child { border-bottom: none; }
         .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
         .tag-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
         .tag-standby { background: rgba(59, 130, 246, 0.2); color: var(--accent-color); }
+        
+        button { background: var(--accent-color); color: #fff; font-weight: 600; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; margin-top: 8px; }
+        button:hover { background: var(--accent-hover); }
     </style>
 </head>
-<body>
+<body onload="fetchLiveTelemetry()">
 
     <header>
-        <h1>NEXUS // ANALYTICS & STRATEGIES</h1>
+        <h1>NEXUS // LIVE TELEMETRY</h1>
         <a href="/" class="back-link">← Back to HQ</a>
     </header>
 
-    <!-- PERFORMANCE METRICS OVERVIEW -->
+    <!-- LIVE LEADERBOARD STATS -->
     <div class="grid-stats">
         <div class="stat-box">
-            <div class="stat-label">Total Net P&L</div>
-            <div class="stat-val" id="totalPnl">$1,450.00</div>
+            <div class="stat-label">Engine Alpha Status</div>
+            <div class="stat-val" id="alphaStatus">Active (2 NQ)</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Win Rate</div>
-            <div class="stat-val" id="winRate">68.4%</div>
+            <div class="stat-label">Engine Beta Status</div>
+            <div class="stat-val" id="betaStatus" style="color: var(--warning);">Active (1 NQ)</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Active Alpha Rank</div>
-            <div class="stat-val" style="color: var(--warning);" id="topEngine">Alpha (2 NQ)</div>
+            <div class="stat-label">Engine Gamma Status</div>
+            <div class="stat-val" id="gammaStatus" style="color: var(--accent-color);">Active (1 MNQ)</div>
         </div>
     </div>
 
-    <!-- EQUITY CURVE / GRAPHING PANEL -->
+    <!-- LIVE ENGINE STRATEGIES INSPECTOR -->
     <div class="card">
-        <div class="card-title">📊 Session Equity Curve (P&L Progression)</div>
-        <div class="chart-container" id="equityChart">
-            <!-- Dynamic ASCII/Flex Bars representing recent trades/sessions -->
-            <div class="bar-col"><div class="bar" style="height: 40%;"></div><span class="bar-label">Mon</span></div>
-            <div class="bar-col"><div class="bar" style="height: 65%;"></div><span class="bar-label">Tue</span></div>
-            <div class="bar-col"><div class="bar" style="height: 30%; background: var(--danger);"></div><span class="bar-label">Wed</span></div>
-            <div class="bar-col"><div class="bar" style="height: 85%;"></div><span class="bar-label">Thu</span></div>
-            <div class="bar-col"><div class="bar" style="height: 95%;"></div><span class="bar-label">Fri</span></div>
-        </div>
-    </div>
-
-    <!-- ACTIVE STRATEGIES INSPECTOR -->
-    <div class="card">
-        <div class="card-title">⚙️ Active Tournament Strategies</div>
+        <div class="card-title">⚙️ Active Tournament Strategies & Logic</div>
         <div class="input-group">
             <div class="strategy-row">
                 <div>
@@ -98,17 +85,61 @@
                     <strong>Engine Beta: Order Flow Volume Momentum</strong>
                     <div style="font-size: 0.75rem; color: var(--text-dim);">Monitors bid/ask tape delta and session high/low breakouts.</div>
                 </div>
-                <div><span class="tag tag-standby">ACTIVE (1 NQ)</span></div>
+                <div><span class="tag tag-standby">COMPETING (1 NQ)</span></div>
             </div>
             <div class="strategy-row">
                 <div>
                     <strong>Engine Gamma: Community Webhook Ingestion</strong>
                     <div style="font-size: 0.75rem; color: var(--text-dim);">Parses external verified channel dispatches and signals.</div>
                 </div>
-                <div><span class="tag tag-standby">ACTIVE (1 MNQ)</span></div>
+                <div><span class="tag tag-standby">COMPETING (1 MNQ)</span></div>
             </div>
         </div>
     </div>
 
+    <!-- LIVE TELEMETRY STREAM -->
+    <div class="card">
+        <div class="card-title">📡 Live Tournament Execution Stream (GitHub Log Feed)</div>
+        <div class="stream-box" id="telemetryStream">Connecting to NEXUS stream...</div>
+        <button onclick="fetchLiveTelemetry()">Refresh Telemetry Feed</button>
+    </div>
+
+    <script>
+        async function fetchLiveTelemetry() {
+            const streamBox = document.getElementById('telemetryStream');
+            streamBox.innerText = "[...] Fetching live engine executions from server...";
+
+            try {
+                // Fetch tournament leaderboard stats
+                const lbRes = await fetch('/api/tournament/leaderboard');
+                const lbData = await lbRes.json();
+                if (lbData.status === 'success') {
+                    const lb = lbData.leaderboard;
+                    if(lb.Alpha_TechScanner) document.getElementById('alphaStatus').innerText = `${lb.Alpha_TechScanner.wins}W / ${lb.Alpha_TechScanner.losses}L`;
+                    if(lb.Beta_OrderFlow) document.getElementById('betaStatus').innerText = `${lb.Beta_OrderFlow.wins}W / ${lb.Beta_OrderFlow.losses}L`;
+                    if(lb.Gamma_SignalParser) document.getElementById('gammaStatus').innerText = `${lb.Gamma_SignalParser.wins}W / ${lb.Gamma_SignalParser.losses}L`;
+                }
+
+                // Fetch live stream logs
+                const streamRes = await fetch('/api/tournament/telemetry');
+                const streamData = await streamRes.json();
+                
+                if (streamData.status === 'success') {
+                    const stream = streamData.stream;
+                    if (stream.length === 0) {
+                        streamBox.innerText = "[*] No active signals logged yet. Fire a tournament signal or log a trade from HQ to see live telemetry data.";
+                    } else {
+                        let text = "";
+                        stream.forEach(item => {
+                            text += `[${item.timestamp || 'LIVE'}] [${item.category}] ${item.content}\n`;
+                        });
+                        streamBox.innerText = text;
+                    }
+                }
+            } catch (err) {
+                streamBox.innerText = `[ERROR] Failed to connect to telemetry stream: ${err}`;
+            }
+        }
+    </script>
 </body>
 </html>

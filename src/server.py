@@ -20,6 +20,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_content()
         elif self.path == '/api/tournament/leaderboard':
             self.handle_tournament_leaderboard()
+        elif self.path == '/api/tournament/telemetry':
+            self.handle_tournament_telemetry()
         else:
             super().do_GET()
 
@@ -154,6 +156,23 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps({"status": "success", "leaderboard": board}).encode('utf-8'))
+
+    def handle_tournament_telemetry(self):
+        # Pull live activity logs from logger
+        telemetry_stream = []
+        try:
+            from logger import get_logs
+            all_logs = get_logs()
+            for entry in all_logs:
+                if "TOURNAMENT" in entry.get("category", "") or "TRADE" in entry.get("category", ""):
+                    telemetry_stream.append(entry)
+        except Exception:
+            telemetry_stream = [{"timestamp": "LIVE", "category": "SYSTEM", "content": "Initializing telemetry feed..."}]
+
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "success", "stream": telemetry_stream[-10:]}).encode('utf-8'))
 
     def handle_content(self):
         from content_engine import generate_daily_content
