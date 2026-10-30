@@ -18,5 +18,10 @@
     "timestamp": "2026-10-30 10:50:47",
     "category": "PAYROLL_BIWEEKLY",
     "content": "{\"biweekly_cycle\": true, \"regular_hours\": 80.0, \"ot_hours\": 20.0, \"pto_hours_used\": 0.0, \"base_rate\": 20.0, \"ot_rate\": 30.0, \"gross_pay\": 2200.0, \"estimated_net\": 1716.0, \"vault_distribution\": {\"household_bills\": 686.4, \"subaru_and_auto\": 343.2, \"kids_growth\": 257.4, \"tristate_home\": 257.4, \"trading_reserve\": 171.6}}"
+  },
+  {
+    "timestamp": "2026-10-30 20:19:11",
+    "category": "PAYROLL_BIWEEKLY",
+    "content": "{\"biweekly_cycle\": true, \"regular_hours\": 80.0, \"ot_hours\": 31.99, \"base_rate\": 20.0, \"ot_rate\": 30.0, \"gross_pay\": 2559.7, \"estimated_net\": 1996.57, \"vault_distribution\": {\"household_bills\": 798.63, \"subaru_and_auto\": 399.31, \"kids_growth\": 299.48, \"tristate_home\": 299.48, \"trading_reserve\": 199.66}}"
   }
 ]
