@@ -53,9 +53,9 @@
         </div>
     </header>
 
-    <!-- FUTURES TRADING LEDGER -->
+    <!-- AUTONOMOUS TRADING AGENT & LEDGER -->
     <div class="card">
-        <div class="card-title">📈 Futures Trading Ledger</div>
+        <div class="card-title">🤖 Autonomous Trading Agent & Ledger</div>
         <div class="input-group">
             <div class="grid-inputs-3">
                 <div>
@@ -77,7 +77,10 @@
                 </div>
             </div>
             <textarea id="tradeNotes" placeholder="Setup notes (e.g. FVG entry, session high sweep)..."></textarea>
-            <button onclick="logTrade()">Log Trade Setup</button>
+            <div class="grid-buttons">
+                <button onclick="logTrade()">Manual P&L Entry</button>
+                <button onclick="testWebhookSignal()" style="background: var(--warning); color: #000;">Test Auto-Signal</button>
+            </div>
         </div>
     </div>
 
@@ -140,6 +143,48 @@
 
     <script>
         let currentStagedContent = null;
+
+        async function testWebhookSignal() {
+            const logBox = document.getElementById('responseLog');
+            logBox.innerText = "[...] Incoming TradingView signal detected... Sending to NEXUS Agent...";
+
+            const mockSignal = {
+                symbol: document.getElementById('tradeSymbol').value || "NQ",
+                action: "BUY",
+                contracts: parseInt(document.getElementById('tradeContracts').value) || 1,
+                price: 18250.25,
+                stop_loss: 18220.00,
+                take_profit: 18310.00,
+                source: "TradingView_ICT_FVG_Webhook"
+            };
+
+            try {
+                const res = await fetch('/api/webhook/trade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(mockSignal)
+                });
+                const responseData = await res.json();
+                
+                if (responseData.status === 'processed') {
+                    const r = responseData.result;
+                    let output = `=== TRADING AGENT SIGNAL EVALUATION ===\n`;
+                    output += `Status: ${r.status}\n`;
+                    if (r.status === 'EXECUTED') {
+                        const d = r.details;
+                        output += `Action: ${d.action} ${d.contracts} ${d.symbol} @ $${d.entry_price}\n`;
+                        output += `Stop Loss: $${d.stop_loss} | Take Profit: $${d.take_profit}\n`;
+                        output += `Broker Target: ${d.broker}\n`;
+                        output += `[SUCCESS] Signal verified & trade record committed to GitHub!`;
+                    } else {
+                        output += `Reason: ${r.reason}\n`;
+                    }
+                    logBox.innerText = output;
+                }
+            } catch (err) {
+                logBox.innerText = `[ERROR] Webhook execution failed: ${err}`;
+            }
+        }
 
         async function logTrade() {
             const symbol = document.getElementById('tradeSymbol').value;

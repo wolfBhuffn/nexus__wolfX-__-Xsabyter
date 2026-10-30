@@ -25,6 +25,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_payroll(payload)
         elif self.path == '/api/trade':
             self.handle_trade(payload)
+        elif self.path == '/api/webhook/trade':
+            self.handle_trade_webhook(payload)
         else:
             self.send_response(404)
             self.end_headers()
@@ -126,6 +128,15 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+
+    def handle_trade_webhook(self, payload):
+        from trading_agent import evaluate_and_execute_signal
+        result = evaluate_and_execute_signal(payload)
+        
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "processed", "result": result}).encode('utf-8'))
 
     def handle_content(self):
         from content_engine import generate_daily_content
