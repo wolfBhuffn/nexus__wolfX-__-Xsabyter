@@ -53,5 +53,10 @@
     "timestamp": "2026-10-30 22:32:25",
     "category": "TOURNAMENT_TRADE",
     "content": "{\"timestamp\": \"2026-10-30 22:32:25\", \"origin_engine\": \"Alpha_TechScanner\", \"symbol\": \"NQ\", \"action\": \"BUY\", \"entry_price\": 18260.5, \"assigned_size\": \"2 NQ\", \"tier\": \"LEADER_MAX_SIZE\", \"status\": \"EXECUTED_HYBRID\"}"
+  },
+  {
+    "timestamp": "2026-10-30 22:43:35",
+    "category": "AUTO_TRADE_EXECUTION",
+    "content": "{\"timestamp\": \"2026-10-30 22:43:35\", \"symbol\": \"NQ\", \"action\": \"BUY\", \"contracts\": 1, \"entry_price\": 18320.5, \"stop_loss\": 18280.0, \"take_profit\": 18400.0, \"signal_source\": \"Local_Mac_Terminal_Scanner\", \"execution_state\": \"EXECUTED_SIMULATED\", \"broker\": \"Tradovate_API\"}"
   }
 ]
