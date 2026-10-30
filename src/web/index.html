@@ -52,6 +52,15 @@
         </div>
     </header>
 
+    <!-- WOLF SABYTER CONTENT ENGINE -->
+    <div class="card">
+        <div class="card-title">🐺 Wolf SaByter Content Engine</div>
+        <div class="grid-buttons">
+            <button class="quick-btn" onclick="generateContent()">Generate Staged Post</button>
+            <button class="quick-btn" onclick="approveContent()">Approve & Commit</button>
+        </div>
+    </div>
+
     <!-- BIWEEKLY PAYROLL & VAULT CALCULATOR -->
     <div class="card">
         <div class="card-title">Biweekly Payroll & Vault Engine ($20/hr)</div>
@@ -101,6 +110,61 @@
     </div>
 
     <script>
+        let currentStagedContent = null;
+
+        async function generateContent() {
+            const logBox = document.getElementById('responseLog');
+            logBox.innerText = "[...] Wolf SaByter agent generating daily social media payload...";
+
+            try {
+                const res = await fetch('/api/content');
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    currentStagedContent = data.data;
+                    let output = `=== WOLF SABYTER STAGED CONTENT ===\n`;
+                    output += `Theme: ${currentStagedContent.theme}\n\n`;
+                    output += `--- CAROUSEL SLIDES ---\n`;
+                    currentStagedContent.carousel_slides.forEach(s => output += `${s}\n`);
+                    output += `\n--- TIKTOK SHOP PITCH ---\n${currentStagedContent.tiktok_shop_pitch}\n`;
+                    output += `\n--- CAPTION & HASHTAGS ---\n${currentStagedContent.caption}\n\n`;
+                    output += `[ACTION] Click 'Approve & Commit' to publish to GitHub content queue.`;
+
+                    logBox.innerText = output;
+                } else {
+                    logBox.innerText = `[ERROR] Could not generate content.`;
+                }
+            } catch (err) {
+                logBox.innerText = `[ERROR] Content agent failed: ${err}`;
+            }
+        }
+
+        async function approveContent() {
+            const logBox = document.getElementById('responseLog');
+            if (!currentStagedContent) {
+                logBox.innerText = "[!] Please generate content before approving.";
+                return;
+            }
+
+            logBox.innerText = "[...] Committing approved content payload to GitHub queue...";
+
+            try {
+                const res = await fetch('/api/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        category: 'WOLF_SABYTER_CONTENT', 
+                        content: JSON.dumps(currentStagedContent) 
+                    })
+                });
+                const data = await res.json();
+                logBox.innerText = `[SUCCESS] Approved Wolf SaByter content committed to GitHub!`;
+                currentStagedContent = null;
+            } catch (err) {
+                logBox.innerText = `[ERROR] Failed to commit content: ${err}`;
+            }
+        }
+
         async function calculatePayroll() {
             const regHours = document.getElementById('regHoursInput').value || 0;
             const otHours = document.getElementById('otHoursInput').value || 0;

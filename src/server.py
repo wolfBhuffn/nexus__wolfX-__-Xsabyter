@@ -2,7 +2,6 @@ import os
 import json
 import http.server
 import socketserver
-from urllib.parse import parse_qs, urlparse
 
 PORT = int(os.environ.get("PORT", 8000))
 WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
@@ -31,6 +30,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/api/status':
             self.handle_status()
+        elif self.path == '/api/content':
+            self.handle_content()
         else:
             super().do_GET()
 
@@ -51,10 +52,10 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             reg_hours = float(payload.get('reg_hours', 0))
             ot_hours = float(payload.get('ot_hours', 0))
-            hourly_rate = float(payload.get('rate', 20.00)) # Base rate $20.00
-            tax_rate = float(payload.get('tax_rate', 0.22)) # Est. tax/deduction rate
+            hourly_rate = float(payload.get('rate', 20.00))
+            tax_rate = float(payload.get('tax_rate', 0.22))
 
-            ot_rate = hourly_rate * 1.5 # $30.00/hr
+            ot_rate = hourly_rate * 1.5
 
             reg_pay = reg_hours * hourly_rate
             ot_pay = ot_hours * ot_rate
@@ -62,13 +63,12 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             gross_pay = reg_pay + ot_pay
             estimated_net = gross_pay * (1.0 - tax_rate)
 
-            # Wealth Distribution Model (% Allocation of Net Pay)
             allocations = {
-                "household_bills": round(estimated_net * 0.40, 2), # 40% Household & Bills
-                "subaru_and_auto": round(estimated_net * 0.20, 2),  # 20% STI Loan & GEICO
-                "kids_growth": round(estimated_net * 0.15, 2),       # 15% Split for 2 Kids
-                "tristate_home": round(estimated_net * 0.15, 2),     # 15% Tri-State Home Fund
-                "trading_reserve": round(estimated_net * 0.10, 2)   # 10% Topstep / Futures Capital
+                "household_bills": round(estimated_net * 0.40, 2),
+                "subaru_and_auto": round(estimated_net * 0.20, 2),
+                "kids_growth": round(estimated_net * 0.15, 2),
+                "tristate_home": round(estimated_net * 0.15, 2),
+                "trading_reserve": round(estimated_net * 0.10, 2)
             }
 
             breakdown = {
@@ -82,7 +82,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "vault_distribution": allocations
             }
 
-            # Commit payroll record to GitHub logs
             from logger import log_entry
             log_entry("PAYROLL_BIWEEKLY", json.dumps(breakdown))
 
@@ -96,6 +95,15 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+
+    def handle_content(self):
+        from content_engine import generate_daily_content
+        staged_content = generate_daily_content()
+        
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "success", "data": staged_content}).encode('utf-8'))
 
     def handle_status(self):
         from nexus_status import get_status
