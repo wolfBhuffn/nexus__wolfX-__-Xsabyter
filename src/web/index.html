@@ -40,7 +40,7 @@
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
 
-        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 250px; overflow-y: auto; white-space: pre-wrap; }
+        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -114,7 +114,7 @@
 
         async function generateContent() {
             const logBox = document.getElementById('responseLog');
-            logBox.innerText = "[...] Wolf SaByter agent generating daily social media payload...";
+            logBox.innerText = "[...] Multi-platform content agent generating staged payload...";
 
             try {
                 const res = await fetch('/api/content');
@@ -122,17 +122,35 @@
                 
                 if (data.status === 'success') {
                     currentStagedContent = data.data;
-                    let output = `=== WOLF SABYTER STAGED CONTENT ===\n`;
-                    output += `Theme: ${currentStagedContent.theme}\n\n`;
-                    output += `--- CAROUSEL SLIDES ---\n`;
-                    currentStagedContent.carousel_slides.forEach(s => output += `${s}\n`);
-                    output += `\n--- TIKTOK SHOP PITCH ---\n${currentStagedContent.tiktok_shop_pitch}\n`;
-                    output += `\n--- CAPTION & HASHTAGS ---\n${currentStagedContent.caption}\n\n`;
-                    output += `[ACTION] Click 'Approve & Commit' to publish to GitHub content queue.`;
+                    const p = currentStagedContent.platforms;
+
+                    let output = `=== WOLF SABYTER MULTI-PLATFORM MATRIX ===\n`;
+                    output += `Theme: ${currentStagedContent.theme}\n`;
+                    output += `Pillar: ${currentStagedContent.pillar}\n\n`;
+
+                    output += `📸 INSTAGRAM (Carousel & Caption):\n`;
+                    p.instagram.carousel_slides.forEach(s => output += `  • ${s}\n`);
+                    output += `  Caption: ${p.instagram.caption}\n\n`;
+
+                    output += `🎬 YOUTUBE SHORTS:\n`;
+                    output += `  Hook: "${p.youtube_shorts.hook_spoken}"\n`;
+                    output += `  Pinned: ${p.youtube_shorts.pinned_comment}\n\n`;
+
+                    output += `🧵 X / TWITTER THREAD:\n`;
+                    p.x_twitter.thread.forEach(t => output += `  • ${t}\n`);
+
+                    output += `\n🛒 TIKTOK SHOP:\n`;
+                    output += `  Script: ${p.tiktok_shop.script}\n`;
+                    output += `  CTA: ${p.tiktok_shop.cta}\n\n`;
+
+                    output += `💼 LINKEDIN:\n`;
+                    output += `  Headline: ${p.linkedin.headline}\n`;
+
+                    output += `\n[ACTION] Click 'Approve & Commit' to queue all platforms to GitHub.`;
 
                     logBox.innerText = output;
                 } else {
-                    logBox.innerText = `[ERROR] Could not generate content.`;
+                    logBox.innerText = `[ERROR] Could not generate multi-platform payload.`;
                 }
             } catch (err) {
                 logBox.innerText = `[ERROR] Content agent failed: ${err}`;
@@ -146,7 +164,7 @@
                 return;
             }
 
-            logBox.innerText = "[...] Committing approved content payload to GitHub queue...";
+            logBox.innerText = "[...] Committing approved multi-platform payload to GitHub queue...";
 
             try {
                 const res = await fetch('/api/log', {
@@ -158,7 +176,7 @@
                     })
                 });
                 const data = await res.json();
-                logBox.innerText = `[SUCCESS] Approved Wolf SaByter content committed to GitHub!`;
+                logBox.innerText = `[SUCCESS] Approved multi-platform payload committed to GitHub!`;
                 currentStagedContent = null;
             } catch (err) {
                 logBox.innerText = `[ERROR] Failed to commit content: ${err}`;
