@@ -23,5 +23,10 @@
     "timestamp": "2026-10-30 20:19:11",
     "category": "PAYROLL_BIWEEKLY",
     "content": "{\"biweekly_cycle\": true, \"regular_hours\": 80.0, \"ot_hours\": 31.99, \"base_rate\": 20.0, \"ot_rate\": 30.0, \"gross_pay\": 2559.7, \"estimated_net\": 1996.57, \"vault_distribution\": {\"household_bills\": 798.63, \"subaru_and_auto\": 399.31, \"kids_growth\": 299.48, \"tristate_home\": 299.48, \"trading_reserve\": 199.66}}"
+  },
+  {
+    "timestamp": "2026-10-30 21:24:49",
+    "category": "FUTURES_TRADE",
+    "content": "{\"symbol\": \"NQ\", \"contracts\": 1, \"pnl\": 250.0, \"notes\": \"Test trading ledger\", \"status\": \"WIN\"}"
   }
 ]
