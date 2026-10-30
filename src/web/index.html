@@ -37,6 +37,7 @@
         button:hover { background: var(--accent-hover); }
 
         .grid-inputs-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-inputs-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
 
@@ -51,6 +52,34 @@
             <div class="pulse"></div> LIVE
         </div>
     </header>
+
+    <!-- FUTURES TRADING LEDGER -->
+    <div class="card">
+        <div class="card-title">📈 Futures Trading Ledger</div>
+        <div class="input-group">
+            <div class="grid-inputs-3">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">Symbol</label>
+                    <select id="tradeSymbol">
+                        <option value="NQ">NQ (Nasdaq)</option>
+                        <option value="ES">ES (S&P 500)</option>
+                        <option value="MNQ">MNQ (Micro)</option>
+                        <option value="MES">MES (Micro)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">Contracts</label>
+                    <input type="number" id="tradeContracts" placeholder="1" value="1" min="1">
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">P&L ($)</label>
+                    <input type="number" id="tradePnl" placeholder="250.00" step="0.01">
+                </div>
+            </div>
+            <textarea id="tradeNotes" placeholder="Setup notes (e.g. FVG entry, session high sweep)..."></textarea>
+            <button onclick="logTrade()">Log Trade Setup</button>
+        </div>
+    </div>
 
     <!-- WOLF SABYTER CONTENT ENGINE -->
     <div class="card">
@@ -111,6 +140,47 @@
 
     <script>
         let currentStagedContent = null;
+
+        async function logTrade() {
+            const symbol = document.getElementById('tradeSymbol').value;
+            const contracts = document.getElementById('tradeContracts').value || 1;
+            const pnl = document.getElementById('tradePnl').value;
+            const notes = document.getElementById('tradeNotes').value;
+            const logBox = document.getElementById('responseLog');
+
+            if (pnl === '') {
+                logBox.innerText = "[!] Please enter a P&L amount.";
+                return;
+            }
+
+            logBox.innerText = "[...] Logging futures trade to GitHub ledger...";
+
+            try {
+                const res = await fetch('/api/trade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol, contracts, pnl, notes })
+                });
+                const responseData = await res.json();
+
+                if (responseData.status === 'success') {
+                    const t = responseData.data;
+                    let output = `=== FUTURES TRADE LOGGED ===\n`;
+                    output += `Symbol: ${t.symbol} (${t.contracts} contracts)\n`;
+                    output += `P&L: ${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(2)} [${t.status}]\n`;
+                    output += `Notes: ${t.notes || 'None'}\n\n`;
+                    output += `[SUCCESS] Trade committed to GitHub ledger!`;
+
+                    logBox.innerText = output;
+                    document.getElementById('tradePnl').value = '';
+                    document.getElementById('tradeNotes').value = '';
+                } else {
+                    logBox.innerText = `[ERROR] ${responseData.message}`;
+                }
+            } catch (err) {
+                logBox.innerText = `[ERROR] Failed to log trade: ${err}`;
+            }
+        }
 
         async function generateContent() {
             const logBox = document.getElementById('responseLog');

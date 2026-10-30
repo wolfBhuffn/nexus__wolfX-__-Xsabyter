@@ -23,6 +23,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_log(payload)
         elif self.path == '/api/payroll':
             self.handle_payroll(payload)
+        elif self.path == '/api/trade':
+            self.handle_trade(payload)
         else:
             self.send_response(404)
             self.end_headers()
@@ -89,6 +91,35 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"status": "success", "data": breakdown}).encode('utf-8'))
+
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+
+    def handle_trade(self, payload):
+        try:
+            symbol = payload.get('symbol', 'NQ').upper()
+            contracts = int(payload.get('contracts', 1))
+            pnl = float(payload.get('pnl', 0.0))
+            notes = payload.get('notes', '')
+
+            trade_entry = {
+                "symbol": symbol,
+                "contracts": contracts,
+                "pnl": pnl,
+                "notes": notes,
+                "status": "WIN" if pnl > 0 else ("LOSS" if pnl < 0 else "BE")
+            }
+
+            from logger import log_entry
+            log_entry("FUTURES_TRADE", json.dumps(trade_entry))
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "success", "data": trade_entry}).encode('utf-8'))
 
         except Exception as e:
             self.send_response(500)
