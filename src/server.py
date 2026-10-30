@@ -38,7 +38,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
         category = payload.get('category', 'general')
         content = payload.get('content', '')
         
-        # Import and execute logger dynamically
         from logger import log_entry
         log_entry(category, content)
 
@@ -50,33 +49,45 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_payroll(self, payload):
         try:
-            hours = float(payload.get('hours', 0))
-            hourly_rate = float(payload.get('rate', 22.50)) # Default counselor rate
-            tax_rate = float(payload.get('tax_rate', 0.22)) # Estimated tax/deduction rate
+            reg_hours = float(payload.get('reg_hours', 0))
+            ot_hours = float(payload.get('ot_hours', 0))
+            pto_hours = float(payload.get('pto_hours', 0))
+            hourly_rate = float(payload.get('rate', 20.00)) # Base rate $20.00
+            tax_rate = float(payload.get('tax_rate', 0.22)) # Est. tax/deduction rate
 
-            gross_pay = hours * hourly_rate
+            ot_rate = hourly_rate * 1.5 # $30.00/hr
+
+            reg_pay = reg_hours * hourly_rate
+            ot_pay = ot_hours * ot_rate
+            pto_pay = pto_hours * hourly_rate
+
+            gross_pay = reg_pay + ot_pay + pto_pay
             estimated_net = gross_pay * (1.0 - tax_rate)
 
             # Wealth Distribution Model (% Allocation of Net Pay)
             allocations = {
                 "household_bills": round(estimated_net * 0.40, 2), # 40% Household & Bills
-                "subaru_and_auto": round(estimated_net * 0.20, 2),  # 20% STI Loan (M&T) & GEICO
+                "subaru_and_auto": round(estimated_net * 0.20, 2),  # 20% STI Loan & GEICO
                 "kids_growth": round(estimated_net * 0.15, 2),       # 15% Split for 2 Kids
                 "tristate_home": round(estimated_net * 0.15, 2),     # 15% Tri-State Home Fund
                 "trading_reserve": round(estimated_net * 0.10, 2)   # 10% Topstep / Futures Capital
             }
 
             breakdown = {
-                "hours_worked": hours,
-                "hourly_rate": hourly_rate,
+                "biweekly_cycle": True,
+                "regular_hours": reg_hours,
+                "ot_hours": ot_hours,
+                "pto_hours_used": pto_hours,
+                "base_rate": hourly_rate,
+                "ot_rate": ot_rate,
                 "gross_pay": round(gross_pay, 2),
                 "estimated_net": round(estimated_net, 2),
                 "vault_distribution": allocations
             }
 
-            # Automatically commit breakdown log to GitHub
+            # Commit payroll record to GitHub logs
             from logger import log_entry
-            log_entry("PAYROLL_VAULT", json.dumps(breakdown))
+            log_entry("PAYROLL_BIWEEKLY", json.dumps(breakdown))
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')

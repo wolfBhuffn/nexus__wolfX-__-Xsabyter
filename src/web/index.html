@@ -36,11 +36,11 @@
         button { background: var(--accent-color); font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; }
         button:hover { background: var(--accent-hover); }
 
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-inputs-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
 
-        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 220px; overflow-y: auto; white-space: pre-wrap; }
+        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 250px; overflow-y: auto; white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -52,15 +52,25 @@
         </div>
     </header>
 
-    <!-- PAYROLL & VAULT CALCULATOR -->
+    <!-- BIWEEKLY PAYROLL & VAULT CALCULATOR -->
     <div class="card">
-        <div class="card-title">Payroll & Vault Splitter Engine</div>
+        <div class="card-title">Biweekly Payroll & Vault Engine ($20/hr)</div>
         <div class="input-group">
-            <div class="grid-inputs">
-                <input type="number" id="hoursInput" placeholder="Hours (e.g. 75)" step="0.5">
-                <input type="number" id="rateInput" placeholder="Rate ($22.50)" value="22.50" step="0.5">
+            <div class="grid-inputs-3">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">Reg Hours</label>
+                    <input type="number" id="regHoursInput" placeholder="80" value="80" step="0.5">
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">OT Hours</label>
+                    <input type="number" id="otHoursInput" placeholder="0" value="0" step="0.5">
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">PTO Hours</label>
+                    <input type="number" id="ptoHoursInput" placeholder="0" value="0" step="0.5">
+                </div>
             </div>
-            <button onclick="calculatePayroll()">Run Pay & Vault Allocation</button>
+            <button onclick="calculatePayroll()">Calculate & Allocate Pay</button>
         </div>
     </div>
 
@@ -96,22 +106,23 @@
 
     <script>
         async function calculatePayroll() {
-            const hours = document.getElementById('hoursInput').value;
-            const rate = document.getElementById('rateInput').value || 22.50;
+            const regHours = document.getElementById('regHoursInput').value || 0;
+            const otHours = document.getElementById('otHoursInput').value || 0;
+            const ptoHours = document.getElementById('ptoHoursInput').value || 0;
             const logBox = document.getElementById('responseLog');
 
-            if (!hours) {
-                logBox.innerText = "[!] Please enter total hours worked.";
-                return;
-            }
-
-            logBox.innerText = "[...] Calculating income and running vault distribution algorithm...";
+            logBox.innerText = "[...] Calculating biweekly earnings & running vault distribution...";
 
             try {
                 const res = await fetch('/api/payroll', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hours, rate })
+                    body: JSON.stringify({ 
+                        reg_hours: regHours, 
+                        ot_hours: otHours, 
+                        pto_hours: ptoHours,
+                        rate: 20.00 
+                    })
                 });
                 const responseData = await res.json();
                 
@@ -119,9 +130,12 @@
                     const d = responseData.data;
                     const v = d.vault_distribution;
                     
-                    let output = `=== PAYROLL & VAULT DISTRIBUTION ===\n`;
-                    output += `Hours Worked: ${d.hours_worked} hrs @ $${d.hourly_rate}/hr\n`;
-                    output += `Gross Income: $${d.gross_pay}\n`;
+                    let output = `=== BIWEEKLY PAYROLL BREAKDOWN ===\n`;
+                    output += `Regular Hours: ${d.regular_hours} hrs @ $${d.base_rate}/hr\n`;
+                    output += `Overtime Hours: ${d.ot_hours} hrs @ $${d.ot_rate}/hr (1.5x)\n`;
+                    output += `PTO Hours Used: ${d.pto_hours_used} hrs\n`;
+                    output += `-----------------------------------\n`;
+                    output += `Gross Earnings: $${d.gross_pay}\n`;
                     output += `Estimated Net (Est. 22% Tax): $${d.estimated_net}\n\n`;
                     output += `--- VAULT ALLOCATIONS ---\n`;
                     output += `🏠 Household & Bills (40%): $${v.household_bills}\n`;
@@ -129,14 +143,14 @@
                     output += `👶 Children's Growth (15%): $${v.kids_growth} ($${(v.kids_growth/2).toFixed(2)} each)\n`;
                     output += `🏡 Tri-State Home Fund (15%): $${v.tristate_home}\n`;
                     output += `📈 Trading Capital Reserve (10%): $${v.trading_reserve}\n\n`;
-                    output += `[SUCCESS] Financial payload logged & committed to GitHub.`;
+                    output += `[SUCCESS] Payroll record committed to GitHub logs.`;
 
                     logBox.innerText = output;
                 } else {
                     logBox.innerText = `[ERROR] ${responseData.message}`;
                 }
             } catch (err) {
-                logBox.innerText = `[ERROR] Failed to run payroll: ${err}`;
+                logBox.innerText = `[ERROR] Failed to calculate payroll: ${err}`;
             }
         }
 
