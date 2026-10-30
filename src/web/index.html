@@ -53,6 +53,22 @@
         </div>
     </header>
 
+    <!-- HYBRID TOURNAMENT LEADERBOARD -->
+    <div class="card">
+        <div class="card-title">🏆 Hybrid Trading Tournament</div>
+        <div class="input-group">
+            <select id="tournamentEngineSelect">
+                <option value="Alpha_TechScanner">Engine Alpha (Python Scanner)</option>
+                <option value="Beta_OrderFlow">Engine Beta (Broker API Stream)</option>
+                <option value="Gamma_SignalParser">Engine Gamma (Community Webhook)</option>
+            </select>
+            <div class="grid-buttons">
+                <button onclick="fetchLeaderboard()">Fetch Leaderboard</button>
+                <button onclick="triggerTournamentSignal()" style="background: var(--warning); color: #000;">Fire Tournament Signal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- AUTONOMOUS TRADING AGENT & LEDGER -->
     <div class="card">
         <div class="card-title">🤖 Autonomous Trading Agent & Ledger</div>
@@ -79,7 +95,7 @@
             <textarea id="tradeNotes" placeholder="Setup notes (e.g. FVG entry, session high sweep)..."></textarea>
             <div class="grid-buttons">
                 <button onclick="logTrade()">Manual P&L Entry</button>
-                <button onclick="testWebhookSignal()" style="background: var(--warning); color: #000;">Test Auto-Signal</button>
+                <button onclick="testWebhookSignal()">Test Auto-Signal</button>
             </div>
         </div>
     </div>
@@ -144,9 +160,62 @@
     <script>
         let currentStagedContent = null;
 
+        async function fetchLeaderboard() {
+            const logBox = document.getElementById('responseLog');
+            logBox.innerText = "[...] Fetching tournament engine standings...";
+
+            try {
+                const res = await fetch('/api/tournament/leaderboard');
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const lb = data.leaderboard;
+                    let output = `=== HYBRID TOURNAMENT LEADERBOARD ===\n`;
+                    for (const [eng, stats] of Object.entries(lb)) {
+                        output += `Rank #${stats.rank} - ${eng}\n`;
+                        output += `  Allocated Size: ${stats.size}\n`;
+                        output += `  Record: ${stats.wins}W / ${stats.losses}L ($${stats.pnl.toFixed(2)})\n\n`;
+                    }
+                    logBox.innerText = output;
+                }
+            } catch (err) {
+                logBox.innerText = `[ERROR] Failed to fetch leaderboard: ${err}`;
+            }
+        }
+
+        async function triggerTournamentSignal() {
+            const engine = document.getElementById('tournamentEngineSelect').value;
+            const logBox = document.getElementById('responseLog');
+
+            logBox.innerText = `[...] Firing signal from ${engine}...`;
+
+            try {
+                const res = await fetch('/api/tournament/signal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        engine: engine,
+                        signal: { symbol: "NQ", action: "BUY", price: 18260.50 }
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'processed') {
+                    const r = data.result;
+                    let output = `=== TOURNAMENT SIGNAL PROCESSED ===\n`;
+                    output += `Engine: ${r.origin_engine}\n`;
+                    output += `Execution Tier: ${r.tier}\n`;
+                    output += `Trade: ${r.action} ${r.symbol} @ $${r.entry_price}\n`;
+                    output += `Assigned Sizing: ${r.assigned_size}\n\n`;
+                    output += `[SUCCESS] Trade logged under tournament execution!`;
+                    logBox.innerText = output;
+                }
+            } catch (err) {
+                logBox.innerText = `[ERROR] Tournament signal failed: ${err}`;
+            }
+        }
+
         async function testWebhookSignal() {
             const logBox = document.getElementById('responseLog');
-            logBox.innerText = "[...] Incoming TradingView signal detected... Sending to NEXUS Agent...";
+            logBox.innerText = "[...] Incoming signal detected... Processing...";
 
             const mockSignal = {
                 symbol: document.getElementById('tradeSymbol').value || "NQ",

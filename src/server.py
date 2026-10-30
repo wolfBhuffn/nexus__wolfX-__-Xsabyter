@@ -27,6 +27,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_trade(payload)
         elif self.path == '/api/webhook/trade':
             self.handle_trade_webhook(payload)
+        elif self.path == '/api/tournament/signal':
+            self.handle_tournament_signal(payload)
         else:
             self.send_response(404)
             self.end_headers()
@@ -36,21 +38,20 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_status()
         elif self.path == '/api/content':
             self.handle_content()
+        elif self.path == '/api/tournament/leaderboard':
+            self.handle_tournament_leaderboard()
         else:
             super().do_GET()
 
     def handle_log(self, payload):
         category = payload.get('category', 'general')
         content = payload.get('content', '')
-        
         from logger import log_entry
         log_entry(category, content)
-
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        response = {"status": "success", "message": f"Log entry [{category.upper()}] recorded."}
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+        self.wfile.write(json.dumps({"status": "success", "message": f"Log entry [{category.upper()}] recorded."}).encode('utf-8'))
 
     def handle_payroll(self, payload):
         try:
@@ -60,10 +61,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             tax_rate = float(payload.get('tax_rate', 0.22))
 
             ot_rate = hourly_rate * 1.5
-
             reg_pay = reg_hours * hourly_rate
             ot_pay = ot_hours * ot_rate
-
             gross_pay = reg_pay + ot_pay
             estimated_net = gross_pay * (1.0 - tax_rate)
 
@@ -93,7 +92,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"status": "success", "data": breakdown}).encode('utf-8'))
-
         except Exception as e:
             self.send_response(500)
             self.send_header('Content-Type', 'application/json')
@@ -122,7 +120,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"status": "success", "data": trade_entry}).encode('utf-8'))
-
         except Exception as e:
             self.send_response(500)
             self.send_header('Content-Type', 'application/json')
@@ -132,16 +129,33 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
     def handle_trade_webhook(self, payload):
         from trading_agent import evaluate_and_execute_signal
         result = evaluate_and_execute_signal(payload)
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "processed", "result": result}).encode('utf-8'))
+
+    def handle_tournament_signal(self, payload):
+        from tournament_engine import evaluate_tournament_signal
+        engine_name = payload.get("engine", "Alpha_TechScanner")
+        signal = payload.get("signal", {})
+        result = evaluate_tournament_signal(engine_name, signal)
         
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps({"status": "processed", "result": result}).encode('utf-8'))
 
+    def handle_tournament_leaderboard(self):
+        from tournament_engine import get_leaderboard
+        board = get_leaderboard()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "success", "leaderboard": board}).encode('utf-8'))
+
     def handle_content(self):
         from content_engine import generate_daily_content
         staged_content = generate_daily_content()
-        
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
