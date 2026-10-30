@@ -1,50 +1,103 @@
+import os
+import json
 import http.server
 import socketserver
-import json
-import subprocess
-from pathlib import Path
-import os
-# Render provides a dynamic PORT environment variable; default to 3000 locally
-PORT = int(os.environ.get("PORT", 3000))
-WEB_DIR = Path("src/web")
+from urllib.parse import parse_qs, urlparse
 
-class NexusHandler(http.server.SimpleHTTPRequestHandler):
-    def translate_path(self, path):
-        if path == "/":
-            return str(WEB_DIR / "index.html")
-        return str(WEB_DIR / path.lstrip("/"))
+PORT = int(os.environ.get("PORT", 8000))
+WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
+
+class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=WEB_DIR, **kwargs)
+
+    def do_POST(self):
+        content_length = int(self.headers.get('Content-Length', 0))
+        post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
+        
+        try:
+            payload = json.loads(post_data.decode('utf-8'))
+        except json.JSONDecodeError:
+            payload = {}
+
+        if self.path == '/api/log':
+            self.handle_log(payload)
+        elif self.path == '/api/payroll':
+            self.handle_payroll(payload)
+        else:
+            self.send_response(404)
+            self.end_headers()
 
     def do_GET(self):
-        if self.path == "/api/status":
-            res = subprocess.run(["python3", "src/nexus_status.py"], capture_output=True, text=True)
-            self._send_json({"output": res.stdout})
+        if self.path == '/api/status':
+            self.handle_status()
         else:
             super().do_GET()
 
-    def do_POST(self):
-        if self.path == "/api/log":
-            content_length = int(self.headers['Content-Length'])
-            post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
-            category = post_data.get("category", "idea")
-            content = post_data.get("content", "")
+    def handle_log(self, payload):
+        category = payload.get('category', 'general')
+        content = payload.get('content', '')
+        
+        # Import and execute logger dynamically
+        from logger import log_entry
+        log_entry(category, content)
 
-            if content:
-                res = subprocess.run(["python3", "src/logger.py", "-c", category, content], capture_output=True, text=True)
-                self._send_json({"status": "success", "message": f"Entry logged: [{category.upper()}] {content}"})
-            else:
-                self._send_json({"status": "error", "message": "Content cannot be empty"}, status=400)
-
-    def _send_json(self, data, status=200):
-        self.send_response(status)
+        self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8'))
+        response = {"status": "success", "message": f"Log entry [{category.upper()}] recorded."}
+        self.wfile.write(json.dumps(response).encode('utf-8'))
+
+    def handle_payroll(self, payload):
+        try:
+            hours = float(payload.get('hours', 0))
+            hourly_rate = float(payload.get('rate', 22.50)) # Default counselor rate
+            tax_rate = float(payload.get('tax_rate', 0.22)) # Estimated tax/deduction rate
+
+            gross_pay = hours * hourly_rate
+            estimated_net = gross_pay * (1.0 - tax_rate)
+
+            # Wealth Distribution Model (% Allocation of Net Pay)
+            allocations = {
+                "household_bills": round(estimated_net * 0.40, 2), # 40% Household & Bills
+                "subaru_and_auto": round(estimated_net * 0.20, 2),  # 20% STI Loan (M&T) & GEICO
+                "kids_growth": round(estimated_net * 0.15, 2),       # 15% Split for 2 Kids
+                "tristate_home": round(estimated_net * 0.15, 2),     # 15% Tri-State Home Fund
+                "trading_reserve": round(estimated_net * 0.10, 2)   # 10% Topstep / Futures Capital
+            }
+
+            breakdown = {
+                "hours_worked": hours,
+                "hourly_rate": hourly_rate,
+                "gross_pay": round(gross_pay, 2),
+                "estimated_net": round(estimated_net, 2),
+                "vault_distribution": allocations
+            }
+
+            # Automatically commit breakdown log to GitHub
+            from logger import log_entry
+            log_entry("PAYROLL_VAULT", json.dumps(breakdown))
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "success", "data": breakdown}).encode('utf-8'))
+
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+
+    def handle_status(self):
+        from nexus_status import get_status
+        output = get_status()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"output": output}).encode('utf-8'))
 
 if __name__ == "__main__":
-    server_address = ("0.0.0.0", PORT)
-    with socketserver.TCPServer(server_address, NexusHandler) as httpd:
-        print(f"[+] NEXUS Web Command Center live on port {PORT}")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\n[-] Server shutting down.")
+    print(f"Starting NEXUS Server on port {PORT}...")
+    with socketserver.TCPServer(("", PORT), NexusRequestHandler) as httpd:
+        httpd.serve_forever()
