@@ -40,6 +40,8 @@
         .grid-inputs-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
+        .nav-btn { background: #1f2937; border: 1px solid var(--accent-color); color: var(--accent-color); font-size: 0.85rem; text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; display: block; font-weight: 600; margin-bottom: 16px; }
+        .nav-btn:hover { background: var(--accent-color); color: #fff; }
 
         #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
     </style>
@@ -52,6 +54,9 @@
             <div class="pulse"></div> LIVE
         </div>
     </header>
+
+    <!-- NAVIGATION TO ANALYTICS -->
+    <a href="/analytics" class="nav-btn">📊 Open Strategy & Analytics Dashboard →</a>
 
     <!-- HYBRID TOURNAMENT LEADERBOARD -->
     <div class="card">

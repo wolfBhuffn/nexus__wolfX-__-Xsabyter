@@ -10,6 +10,19 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
 
+    def do_GET(self):
+        if self.path == '/analytics':
+            self.path = '/analytics.html'
+            return super().do_GET()
+        elif self.path == '/api/status':
+            self.handle_status()
+        elif self.path == '/api/content':
+            self.handle_content()
+        elif self.path == '/api/tournament/leaderboard':
+            self.handle_tournament_leaderboard()
+        else:
+            super().do_GET()
+
     def do_POST(self):
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
@@ -32,16 +45,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
-
-    def do_GET(self):
-        if self.path == '/api/status':
-            self.handle_status()
-        elif self.path == '/api/content':
-            self.handle_content()
-        elif self.path == '/api/tournament/leaderboard':
-            self.handle_tournament_leaderboard()
-        else:
-            super().do_GET()
 
     def handle_log(self, payload):
         category = payload.get('category', 'general')
@@ -139,7 +142,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
         engine_name = payload.get("engine", "Alpha_TechScanner")
         signal = payload.get("signal", {})
         result = evaluate_tournament_signal(engine_name, signal)
-        
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()

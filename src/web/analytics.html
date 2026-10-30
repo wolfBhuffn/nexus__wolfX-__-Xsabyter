@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS // STRATEGY & ANALYTICS</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #111827;
+            --border-color: #1f2937;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; max-width: 800px; margin: 0 auto; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--text-main); }
+        .back-link { color: var(--accent-color); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+
+        .card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .card-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 12px; font-weight: 600; }
+
+        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-box { background: #1f2937; padding: 12px; border-radius: 6px; text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--success); margin-top: 4px; }
+        .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; }
+
+        /* Simple ASCII/CSS Bar Graph Canvas */
+        .chart-container { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; font-family: monospace; font-size: 0.85rem; color: var(--text-main); height: 180px; display: flex; align-items: flex-end; gap: 8px; justify-content: space-around; overflow-x: auto; }
+        .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; flex: 1; }
+        .bar { width: 100%; background: var(--accent-color); border-radius: 4px 4px 0 0; transition: height 0.3s; }
+        .bar-label { font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; white-space: nowrap; }
+
+        .strategy-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        .strategy-row:last-child { border-bottom: none; }
+        .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .tag-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .tag-standby { background: rgba(59, 130, 246, 0.2); color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>NEXUS // ANALYTICS & STRATEGIES</h1>
+        <a href="/" class="back-link">← Back to HQ</a>
+    </header>
+
+    <!-- PERFORMANCE METRICS OVERVIEW -->
+    <div class="grid-stats">
+        <div class="stat-box">
+            <div class="stat-label">Total Net P&L</div>
+            <div class="stat-val" id="totalPnl">$1,450.00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-val" id="winRate">68.4%</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Active Alpha Rank</div>
+            <div class="stat-val" style="color: var(--warning);" id="topEngine">Alpha (2 NQ)</div>
+        </div>
+    </div>
+
+    <!-- EQUITY CURVE / GRAPHING PANEL -->
+    <div class="card">
+        <div class="card-title">📊 Session Equity Curve (P&L Progression)</div>
+        <div class="chart-container" id="equityChart">
+            <!-- Dynamic ASCII/Flex Bars representing recent trades/sessions -->
+            <div class="bar-col"><div class="bar" style="height: 40%;"></div><span class="bar-label">Mon</span></div>
+            <div class="bar-col"><div class="bar" style="height: 65%;"></div><span class="bar-label">Tue</span></div>
+            <div class="bar-col"><div class="bar" style="height: 30%; background: var(--danger);"></div><span class="bar-label">Wed</span></div>
+            <div class="bar-col"><div class="bar" style="height: 85%;"></div><span class="bar-label">Thu</span></div>
+            <div class="bar-col"><div class="bar" style="height: 95%;"></div><span class="bar-label">Fri</span></div>
+        </div>
+    </div>
+
+    <!-- ACTIVE STRATEGIES INSPECTOR -->
+    <div class="card">
+        <div class="card-title">⚙️ Active Tournament Strategies</div>
+        <div class="input-group">
+            <div class="strategy-row">
+                <div>
+                    <strong>Engine Alpha: ICT Fair Value Gap (FVG) Scanner</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-dim);">Scans 15m/1h order blocks & liquidity sweeps on NQ/ES.</div>
+                </div>
+                <div><span class="tag tag-active">LEADER (2 NQ)</span></div>
+            </div>
+            <div class="strategy-row">
+                <div>
+                    <strong>Engine Beta: Order Flow Volume Momentum</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-dim);">Monitors bid/ask tape delta and session high/low breakouts.</div>
+                </div>
+                <div><span class="tag tag-standby">ACTIVE (1 NQ)</span></div>
+            </div>
+            <div class="strategy-row">
+                <div>
+                    <strong>Engine Gamma: Community Webhook Ingestion</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-dim);">Parses external verified channel dispatches and signals.</div>
+                </div>
+                <div><span class="tag tag-standby">ACTIVE (1 MNQ)</span></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
