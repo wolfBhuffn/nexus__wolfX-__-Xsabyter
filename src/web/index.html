@@ -36,7 +36,7 @@
         button { background: var(--accent-color); font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; }
         button:hover { background: var(--accent-hover); }
 
-        .grid-inputs-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .grid-inputs-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
 
@@ -56,7 +56,7 @@
     <div class="card">
         <div class="card-title">Biweekly Payroll & Vault Engine ($20/hr)</div>
         <div class="input-group">
-            <div class="grid-inputs-3">
+            <div class="grid-inputs-2">
                 <div>
                     <label style="font-size: 0.75rem; color: var(--text-dim);">Reg Hours</label>
                     <input type="number" id="regHoursInput" placeholder="80" value="80" step="0.5">
@@ -64,10 +64,6 @@
                 <div>
                     <label style="font-size: 0.75rem; color: var(--text-dim);">OT Hours</label>
                     <input type="number" id="otHoursInput" placeholder="0" value="0" step="0.5">
-                </div>
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--text-dim);">PTO Hours</label>
-                    <input type="number" id="ptoHoursInput" placeholder="0" value="0" step="0.5">
                 </div>
             </div>
             <button onclick="calculatePayroll()">Calculate & Allocate Pay</button>
@@ -108,7 +104,6 @@
         async function calculatePayroll() {
             const regHours = document.getElementById('regHoursInput').value || 0;
             const otHours = document.getElementById('otHoursInput').value || 0;
-            const ptoHours = document.getElementById('ptoHoursInput').value || 0;
             const logBox = document.getElementById('responseLog');
 
             logBox.innerText = "[...] Calculating biweekly earnings & running vault distribution...";
@@ -120,7 +115,6 @@
                     body: JSON.stringify({ 
                         reg_hours: regHours, 
                         ot_hours: otHours, 
-                        pto_hours: ptoHours,
                         rate: 20.00 
                     })
                 });
@@ -133,7 +127,6 @@
                     let output = `=== BIWEEKLY PAYROLL BREAKDOWN ===\n`;
                     output += `Regular Hours: ${d.regular_hours} hrs @ $${d.base_rate}/hr\n`;
                     output += `Overtime Hours: ${d.ot_hours} hrs @ $${d.ot_rate}/hr (1.5x)\n`;
-                    output += `PTO Hours Used: ${d.pto_hours_used} hrs\n`;
                     output += `-----------------------------------\n`;
                     output += `Gross Earnings: $${d.gross_pay}\n`;
                     output += `Estimated Net (Est. 22% Tax): $${d.estimated_net}\n\n`;

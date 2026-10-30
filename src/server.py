@@ -51,7 +51,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
         try:
             reg_hours = float(payload.get('reg_hours', 0))
             ot_hours = float(payload.get('ot_hours', 0))
-            pto_hours = float(payload.get('pto_hours', 0))
             hourly_rate = float(payload.get('rate', 20.00)) # Base rate $20.00
             tax_rate = float(payload.get('tax_rate', 0.22)) # Est. tax/deduction rate
 
@@ -59,9 +58,8 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
 
             reg_pay = reg_hours * hourly_rate
             ot_pay = ot_hours * ot_rate
-            pto_pay = pto_hours * hourly_rate
 
-            gross_pay = reg_pay + ot_pay + pto_pay
+            gross_pay = reg_pay + ot_pay
             estimated_net = gross_pay * (1.0 - tax_rate)
 
             # Wealth Distribution Model (% Allocation of Net Pay)
@@ -77,7 +75,6 @@ class NexusRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "biweekly_cycle": True,
                 "regular_hours": reg_hours,
                 "ot_hours": ot_hours,
-                "pto_hours_used": pto_hours,
                 "base_rate": hourly_rate,
                 "ot_rate": ot_rate,
                 "gross_pay": round(gross_pay, 2),
