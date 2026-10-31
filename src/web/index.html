@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+# (<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,8 +30,9 @@
         .hamburger-btn { background: none; border: none; color: var(--text-main); font-size: 1.4rem; cursor: pointer; outline: none; }
         h1 { font-size: 1rem; letter-spacing: 1px; font-weight: 600; }
         
-        .content-body { padding: 24px; flex: 1; display: flex; justify-content: center; align-items: center; }
-        .blank-canvas { color: var(--text-dim); font-size: 0.9rem; border: 1px dashed var(--border-color); padding: 40px; border-radius: 8px; text-align: center; width: 100%; max-width: 500px; }
+        .content-body { padding: 24px; flex: 1; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 16px; }
+        .blank-canvas { color: var(--text-dim); font-size: 0.9rem; border: 1px dashed var(--border-color); padding: 30px; border-radius: 8px; text-align: center; width: 100%; max-width: 500px; }
+        .response-box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; width: 100%; max-width: 500px; min-height: 80px; font-size: 0.85rem; color: var(--text-dim); white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -53,13 +54,16 @@
     <div class="main-content">
         <header>
             <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
-            <h1>COMMAND DASHBOARD</h1>
+            <h1>COMMAND DASHBOARD // AI CLI</h1>
         </header>
 
         <div class="content-body">
             <div class="blank-canvas">
-                <p>Blank Workspace Initialized.</p>
-                <p style="font-size: 0.8rem; margin-top: 8px; color: var(--text-dim);">Click the hamburger icon (☰) in the top left to open the navigation menu.</p>
+                <p>AI Command Node Active.</p>
+                <p style="font-size: 0.8rem; margin-top: 8px; color: var(--text-dim);">Ready for backend telemetry and prompt queries.</p>
+            </div>
+            <div class="response-box" id="responseLog">
+                [+] System initialized. Waiting for CLI input...
             </div>
         </div>
     </div>
@@ -84,6 +88,23 @@ async function sendToAI(promptText) {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('open');
         }
+
+        async function sendToAI(promptText) {
+            const logBox = document.getElementById('responseLog');
+            logBox.innerText = "[*] Transmitting query to AI backend...";
+
+            try {
+                const response = await fetch('/api/ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: promptText })
+                });
+                const data = await response.json();
+                logBox.innerText = `[+] Response:\n${data.reply}`;
+            } catch (error) {
+                logBox.innerText = `[-] Error connecting to AI backend: ${error.message}`;
+            }
+        }
     </script>
 </body>
-</html>
+</html>)
