@@ -63,7 +63,22 @@
             </div>
         </div>
     </div>
+async function sendToAI(promptText) {
+    const logBox = document.getElementById('responseLog');
+    logBox.innerText = "[*] Transmitting query to AI backend...";
 
+    try {
+        const response = await fetch('/api/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: promptText })
+        });
+        const data = await response.json();
+        logBox.innerText = `[+] Response:\n${data.reply}`;
+    } catch (error) {
+        logBox.innerText = `[-] Error connecting to AI backend: ${error.message}`;
+    }
+}
     <script>
         function toggleMenu() {
             const sidebar = document.getElementById('sidebar');
