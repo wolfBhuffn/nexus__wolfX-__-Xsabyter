@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WOLFx_xSABYTER_V2 // ACCESS PORTAL</title>
+    <title>Login // Access Portal</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -15,76 +15,58 @@
             --text-dim: #9ca3af;
             --error: #ef4444;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; height: 100vh; padding: 16px; }
-
         .login-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .logo-header { text-align: center; margin-bottom: 24px; }
-        .logo-header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; color: var(--text-main); }
+        .logo-header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; }
         .logo-header p { font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; letter-spacing: 1px; }
-
         .input-group { display: flex; flex-direction: column; gap: 14px; }
         label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); font-weight: 600; }
         input { background: #1f2937; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 6px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
         input:focus { border-color: var(--accent-color); }
-        
         button { background: var(--accent-color); color: white; font-weight: 600; border: none; padding: 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s; margin-top: 8px; letter-spacing: 1px; font-size: 0.9rem; }
         button:hover { background: var(--accent-hover); }
-
         #errorMsg { font-size: 0.8rem; text-align: center; margin-top: 12px; min-height: 18px; }
     </style>
 </head>
 <body>
-
     <div class="login-card">
         <div class="logo-header">
-            <h1>WOLFx_xSABYTER_V2</h1>
-            <p>SECURE COMMAND PORTAL</p>
+            <h1>AUTHENTICATION GATE</h1>
+            <p>SECURE ACCESS PORTAL</p>
         </div>
-        
         <div class="input-group">
             <div>
-                <label for="passkey">Access Node Key</label>
-                <input type="password" id="passkey" placeholder="Enter secure passphrase..." autofocus>
+                <label for="passkey">Access Passkey</label>
+                <input type="password" id="passkey" placeholder="Enter passkey (1225)..." autofocus>
             </div>
-            <button onclick="authenticate()">Initialize Node</button>
+            <button onclick="authenticate()">Initialize Session</button>
         </div>
-
         <div id="errorMsg"></div>
     </div>
-
     <script>
         function authenticate() {
-            const key = document.getElementById('passkey').value;
+            const key = document.getElementById('passkey').value.trim();
             const errorMsg = document.getElementById('errorMsg');
-
-            if (!key.trim()) {
+            if (!key) {
                 errorMsg.style.color = "var(--error)";
                 errorMsg.innerText = "[!] Passkey cannot be blank.";
                 return;
             }
-
-            // Valid passkeys unlock the dashboard, invalid passkeys route to Cartoon Network
-            if (key === "1225" || key === "wolfsabyter2026" || key === "admin") {
+            if (key === "1225" || key === "admin") {
                 errorMsg.style.color = "#10b981";
-                errorMsg.innerText = "[+] Access granted. Redirecting to dashboard...";
+                errorMsg.innerText = "[+] Access granted. Redirecting...";
                 setTimeout(() => {
-                    window.location.href = "dashboard.html";
+                    window.location.href = "index.html";
                 }, 600);
             } else {
                 errorMsg.style.color = "var(--error)";
-                errorMsg.innerText = "[-] Unauthorized. Rerouting...";
-                setTimeout(() => {
-                    window.location.href = "https://www.cartoonnetwork.com";
-                }, 800);
+                errorMsg.innerText = "[-] Invalid passkey.";
             }
         }
-
         document.getElementById('passkey').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                authenticate();
-            }
+            if (e.key === 'Enter') { authenticate(); }
         });
     </script>
 </body>

@@ -6,7 +6,7 @@ class ReusableHTTPServer(HTTPServer):
 
 class CommandCenterHandler(SimpleHTTPRequestHandler):
     def translate_path(self, path):
-        # Redirect root and direct index requests to the login page first
+        # Force root requests to load the login page first
         if path == '/' or path == '/index.html':
             path = '/src/web/login.html'
         else:
