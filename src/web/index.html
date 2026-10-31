@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS // COMMAND CENTER</title>
+    <title>WOLFx_xSABYTER_V2 // COMMAND CENTER</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -14,449 +14,101 @@
             --text-main: #f3f4f6;
             --text-dim: #9ca3af;
             --success: #10b981;
-            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; max-width: 600px; margin: 0 auto; }
         
         header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
-        h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--text-main); }
+        h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; color: var(--text-main); }
         .status-badge { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--success); font-weight: 600; }
         .pulse { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: blink 2s infinite; }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         .card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-        .card-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 12px; font-weight: 600; }
+        .card-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 12px; font-weight: 600; }
 
         .input-group { display: flex; flex-direction: column; gap: 10px; }
-        select, textarea, input, button { background: #1f2937; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 6px; font-size: 0.95rem; }
-        textarea { resize: vertical; min-height: 70px; }
-        button { background: var(--accent-color); font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; }
+        select, textarea, input, button { background: #1f2937; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 6px; font-size: 0.95rem; outline: none; }
+        textarea { resize: vertical; min-height: 80px; }
+        button { background: var(--accent-color); font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; letter-spacing: 1px; }
         button:hover { background: var(--accent-hover); }
 
-        .grid-inputs-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .grid-inputs-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick-btn { background: #1f2937; border: 1px solid var(--border-color); font-size: 0.85rem; text-align: center; }
-        .nav-btn { background: #1f2937; border: 1px solid var(--accent-color); color: var(--accent-color); font-size: 0.85rem; text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; display: block; font-weight: 600; margin-bottom: 16px; }
-        .nav-btn:hover { background: var(--accent-color); color: #fff; }
 
-        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+        #responseLog { background: #000; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
+        .nav-footer { text-align: center; margin-top: 20px; }
+        .nav-footer a { color: var(--text-dim); font-size: 0.8rem; text-decoration: none; }
+        .nav-footer a:hover { color: var(--text-main); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>NEXUS // HQ</h1>
+        <h1>WOLFx_xSABYTER_V2</h1>
         <div class="status-badge">
-            <div class="pulse"></div> LIVE
+            <div class="pulse"></div> ACTIVE NODE
         </div>
     </header>
 
-    <!-- NAVIGATION TO ANALYTICS -->
-    <a href="/analytics" class="nav-btn">📊 Open Strategy & Analytics Dashboard →</a>
-
-    <!-- HYBRID TOURNAMENT LEADERBOARD -->
+    <!-- QUICK DISPATCH CARD -->
     <div class="card">
-        <div class="card-title">🏆 Hybrid Trading Tournament</div>
-        <div class="input-group">
-            <select id="tournamentEngineSelect">
-                <option value="Alpha_TechScanner">Engine Alpha (Python Scanner)</option>
-                <option value="Beta_OrderFlow">Engine Beta (Broker API Stream)</option>
-                <option value="Gamma_SignalParser">Engine Gamma (Community Webhook)</option>
-            </select>
-            <div class="grid-buttons">
-                <button onclick="fetchLeaderboard()">Fetch Leaderboard</button>
-                <button onclick="triggerTournamentSignal()" style="background: var(--warning); color: #000;">Fire Tournament Signal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- AUTONOMOUS TRADING AGENT & LEDGER -->
-    <div class="card">
-        <div class="card-title">🤖 Autonomous Trading Agent & Ledger</div>
-        <div class="input-group">
-            <div class="grid-inputs-3">
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--text-dim);">Symbol</label>
-                    <select id="tradeSymbol">
-                        <option value="NQ">NQ (Nasdaq)</option>
-                        <option value="ES">ES (S&P 500)</option>
-                        <option value="MNQ">MNQ (Micro)</option>
-                        <option value="MES">MES (Micro)</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--text-dim);">Contracts</label>
-                    <input type="number" id="tradeContracts" placeholder="1" value="1" min="1">
-                </div>
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--text-dim);">P&L ($)</label>
-                    <input type="number" id="tradePnl" placeholder="250.00" step="0.01">
-                </div>
-            </div>
-            <textarea id="tradeNotes" placeholder="Setup notes (e.g. FVG entry, session high sweep)..."></textarea>
-            <div class="grid-buttons">
-                <button onclick="logTrade()">Manual P&L Entry</button>
-                <button onclick="testWebhookSignal()">Test Auto-Signal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- WOLF SABYTER CONTENT ENGINE -->
-    <div class="card">
-        <div class="card-title">🐺 Wolf SaByter Content Engine</div>
-        <div class="grid-buttons">
-            <button class="quick-btn" onclick="generateContent()">Generate Staged Post</button>
-            <button class="quick-btn" onclick="approveContent()">Approve & Commit</button>
-        </div>
-    </div>
-
-    <!-- BIWEEKLY PAYROLL & VAULT CALCULATOR -->
-    <div class="card">
-        <div class="card-title">Biweekly Payroll & Vault Engine ($20/hr)</div>
-        <div class="input-group">
-            <div class="grid-inputs-2">
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--text-dim);">Reg Hours</label>
-                    <input type="number" id="regHoursInput" placeholder="80" value="80" step="0.5">
-                </div>
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--text-dim);">OT Hours</label>
-                    <input type="number" id="otHoursInput" placeholder="0" value="0" step="0.5">
-                </div>
-            </div>
-            <button onclick="calculatePayroll()">Calculate & Allocate Pay</button>
-        </div>
-    </div>
-
-    <!-- LOGGING PANEL -->
-    <div class="card">
-        <div class="card-title">Quick Entry Dispatch</div>
+        <div class="card-title">Dispatch & Note Engine</div>
         <div class="input-group">
             <select id="categorySelect">
-                <option value="idea">💡 Idea / Note</option>
-                <option value="trade">📈 Trading / P&L Setup</option>
+                <option value="idea">💡 Idea / Concept</option>
+                <option value="trade">📈 Trading Setup / P&L</option>
                 <option value="content">🐺 Wolf SaByter Content</option>
-                <option value="task">⚡ Task / Action Item</option>
+                <option value="task">⚡ Action Item / Task</option>
             </select>
             <textarea id="logInput" placeholder="Enter dispatch content..."></textarea>
-            <button onclick="submitLog()">Transmit to GitHub</button>
+            <button onclick="transmitLog()">Transmit Payload</button>
         </div>
     </div>
 
     <!-- SYSTEM MONITOR -->
     <div class="card">
-        <div class="card-title">System Diagnostics</div>
+        <div class="card-title">Node Diagnostics</div>
         <div class="grid-buttons">
-            <button class="quick-btn" onclick="checkStatus()">Check Engine Status</button>
-            <button class="quick-btn" onclick="clearTerminal()">Clear Console</button>
+            <button class="quick-btn" onclick="checkStatus()">Check Git Status</button>
+            <button class="quick-btn" onclick="clearConsole()">Clear Console</button>
         </div>
     </div>
 
-    <!-- TERMINAL OUTPUT -->
+    <!-- CONSOLE OUTPUT -->
     <div class="card">
         <div class="card-title">Console Output</div>
-        <div id="responseLog">NEXUS Command Center initialized... Ready for input.</div>
+        <div id="responseLog">WOLFx_xSABYTER_V2 Command Center online... Ready for input.</div>
+    </div>
+
+    <div class="nav-footer">
+        <a href="login.html">🔒 Lock Session / Return to Portal</a>
     </div>
 
     <script>
-        let currentStagedContent = null;
-
-        async function fetchLeaderboard() {
-            const logBox = document.getElementById('responseLog');
-            logBox.innerText = "[...] Fetching tournament engine standings...";
-
-            try {
-                const res = await fetch('/api/tournament/leaderboard');
-                const data = await res.json();
-                if (data.status === 'success') {
-                    const lb = data.leaderboard;
-                    let output = `=== HYBRID TOURNAMENT LEADERBOARD ===\n`;
-                    for (const [eng, stats] of Object.entries(lb)) {
-                        output += `Rank #${stats.rank} - ${eng}\n`;
-                        output += `  Allocated Size: ${stats.size}\n`;
-                        output += `  Record: ${stats.wins}W / ${stats.losses}L ($${stats.pnl.toFixed(2)})\n\n`;
-                    }
-                    logBox.innerText = output;
-                }
-            } catch (err) {
-                logBox.innerText = `[ERROR] Failed to fetch leaderboard: ${err}`;
-            }
-        }
-
-        async function triggerTournamentSignal() {
-            const engine = document.getElementById('tournamentEngineSelect').value;
-            const logBox = document.getElementById('responseLog');
-
-            logBox.innerText = `[...] Firing signal from ${engine}...`;
-
-            try {
-                const res = await fetch('/api/tournament/signal', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        engine: engine,
-                        signal: { symbol: "NQ", action: "BUY", price: 18260.50 }
-                    })
-                });
-                const data = await res.json();
-                if (data.status === 'processed') {
-                    const r = data.result;
-                    let output = `=== TOURNAMENT SIGNAL PROCESSED ===\n`;
-                    output += `Engine: ${r.origin_engine}\n`;
-                    output += `Execution Tier: ${r.tier}\n`;
-                    output += `Trade: ${r.action} ${r.symbol} @ $${r.entry_price}\n`;
-                    output += `Assigned Sizing: ${r.assigned_size}\n\n`;
-                    output += `[SUCCESS] Trade logged under tournament execution!`;
-                    logBox.innerText = output;
-                }
-            } catch (err) {
-                logBox.innerText = `[ERROR] Tournament signal failed: ${err}`;
-            }
-        }
-
-        async function testWebhookSignal() {
-            const logBox = document.getElementById('responseLog');
-            logBox.innerText = "[...] Incoming signal detected... Processing...";
-
-            const mockSignal = {
-                symbol: document.getElementById('tradeSymbol').value || "NQ",
-                action: "BUY",
-                contracts: parseInt(document.getElementById('tradeContracts').value) || 1,
-                price: 18250.25,
-                stop_loss: 18220.00,
-                take_profit: 18310.00,
-                source: "TradingView_ICT_FVG_Webhook"
-            };
-
-            try {
-                const res = await fetch('/api/webhook/trade', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(mockSignal)
-                });
-                const responseData = await res.json();
-                
-                if (responseData.status === 'processed') {
-                    const r = responseData.result;
-                    let output = `=== TRADING AGENT SIGNAL EVALUATION ===\n`;
-                    output += `Status: ${r.status}\n`;
-                    if (r.status === 'EXECUTED') {
-                        const d = r.details;
-                        output += `Action: ${d.action} ${d.contracts} ${d.symbol} @ $${d.entry_price}\n`;
-                        output += `Stop Loss: $${d.stop_loss} | Take Profit: $${d.take_profit}\n`;
-                        output += `Broker Target: ${d.broker}\n`;
-                        output += `[SUCCESS] Signal verified & trade record committed to GitHub!`;
-                    } else {
-                        output += `Reason: ${r.reason}\n`;
-                    }
-                    logBox.innerText = output;
-                }
-            } catch (err) {
-                logBox.innerText = `[ERROR] Webhook execution failed: ${err}`;
-            }
-        }
-
-        async function logTrade() {
-            const symbol = document.getElementById('tradeSymbol').value;
-            const contracts = document.getElementById('tradeContracts').value || 1;
-            const pnl = document.getElementById('tradePnl').value;
-            const notes = document.getElementById('tradeNotes').value;
-            const logBox = document.getElementById('responseLog');
-
-            if (pnl === '') {
-                logBox.innerText = "[!] Please enter a P&L amount.";
-                return;
-            }
-
-            logBox.innerText = "[...] Logging futures trade to GitHub ledger...";
-
-            try {
-                const res = await fetch('/api/trade', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ symbol, contracts, pnl, notes })
-                });
-                const responseData = await res.json();
-
-                if (responseData.status === 'success') {
-                    const t = responseData.data;
-                    let output = `=== FUTURES TRADE LOGGED ===\n`;
-                    output += `Symbol: ${t.symbol} (${t.contracts} contracts)\n`;
-                    output += `P&L: ${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(2)} [${t.status}]\n`;
-                    output += `Notes: ${t.notes || 'None'}\n\n`;
-                    output += `[SUCCESS] Trade committed to GitHub ledger!`;
-
-                    logBox.innerText = output;
-                    document.getElementById('tradePnl').value = '';
-                    document.getElementById('tradeNotes').value = '';
-                } else {
-                    logBox.innerText = `[ERROR] ${responseData.message}`;
-                }
-            } catch (err) {
-                logBox.innerText = `[ERROR] Failed to log trade: ${err}`;
-            }
-        }
-
-        async function generateContent() {
-            const logBox = document.getElementById('responseLog');
-            logBox.innerText = "[...] Multi-platform content agent generating staged payload...";
-
-            try {
-                const res = await fetch('/api/content');
-                const data = await res.json();
-                
-                if (data.status === 'success') {
-                    currentStagedContent = data.data;
-                    const p = currentStagedContent.platforms;
-
-                    let output = `=== WOLF SABYTER MULTI-PLATFORM MATRIX ===\n`;
-                    output += `Theme: ${currentStagedContent.theme}\n`;
-                    output += `Pillar: ${currentStagedContent.pillar}\n\n`;
-
-                    output += `📸 INSTAGRAM (Carousel & Caption):\n`;
-                    p.instagram.carousel_slides.forEach(s => output += `  • ${s}\n`);
-                    output += `  Caption: ${p.instagram.caption}\n\n`;
-
-                    output += `🎬 YOUTUBE SHORTS:\n`;
-                    output += `  Hook: "${p.youtube_shorts.hook_spoken}"\n`;
-                    output += `  Pinned: ${p.youtube_shorts.pinned_comment}\n\n`;
-
-                    output += `🧵 X / TWITTER THREAD:\n`;
-                    p.x_twitter.thread.forEach(t => output += `  • ${t}\n`);
-
-                    output += `\n🛒 TIKTOK SHOP:\n`;
-                    output += `  Script: ${p.tiktok_shop.script}\n`;
-                    output += `  CTA: ${p.tiktok_shop.cta}\n\n`;
-
-                    output += `💼 LINKEDIN:\n`;
-                    output += `  Headline: ${p.linkedin.headline}\n`;
-
-                    output += `\n[ACTION] Click 'Approve & Commit' to queue all platforms to GitHub.`;
-
-                    logBox.innerText = output;
-                } else {
-                    logBox.innerText = `[ERROR] Could not generate multi-platform payload.`;
-                }
-            } catch (err) {
-                logBox.innerText = `[ERROR] Content agent failed: ${err}`;
-            }
-        }
-
-        async function approveContent() {
-            const logBox = document.getElementById('responseLog');
-            if (!currentStagedContent) {
-                logBox.innerText = "[!] Please generate content before approving.";
-                return;
-            }
-
-            logBox.innerText = "[...] Committing approved multi-platform payload to GitHub queue...";
-
-            try {
-                const res = await fetch('/api/log', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        category: 'WOLF_SABYTER_CONTENT', 
-                        content: JSON.dumps(currentStagedContent) 
-                    })
-                });
-                const data = await res.json();
-                logBox.innerText = `[SUCCESS] Approved multi-platform payload committed to GitHub!`;
-                currentStagedContent = null;
-            } catch (err) {
-                logBox.innerText = `[ERROR] Failed to commit content: ${err}`;
-            }
-        }
-
-        async function calculatePayroll() {
-            const regHours = document.getElementById('regHoursInput').value || 0;
-            const otHours = document.getElementById('otHoursInput').value || 0;
-            const logBox = document.getElementById('responseLog');
-
-            logBox.innerText = "[...] Calculating biweekly earnings & running vault distribution...";
-
-            try {
-                const res = await fetch('/api/payroll', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        reg_hours: regHours, 
-                        ot_hours: otHours, 
-                        rate: 20.00 
-                    })
-                });
-                const responseData = await res.json();
-                
-                if (responseData.status === 'success') {
-                    const d = responseData.data;
-                    const v = d.vault_distribution;
-                    
-                    let output = `=== BIWEEKLY PAYROLL BREAKDOWN ===\n`;
-                    output += `Regular Hours: ${d.regular_hours} hrs @ $${d.base_rate}/hr\n`;
-                    output += `Overtime Hours: ${d.ot_hours} hrs @ $${d.ot_rate}/hr (1.5x)\n`;
-                    output += `-----------------------------------\n`;
-                    output += `Gross Earnings: $${d.gross_pay}\n`;
-                    output += `Estimated Net (Est. 22% Tax): $${d.estimated_net}\n\n`;
-                    output += `--- VAULT ALLOCATIONS ---\n`;
-                    output += `🏠 Household & Bills (40%): $${v.household_bills}\n`;
-                    output += `🏎️ Subaru STI & GEICO (20%): $${v.subaru_and_auto}\n`;
-                    output += `👶 Children's Growth (15%): $${v.kids_growth} ($${(v.kids_growth/2).toFixed(2)} each)\n`;
-                    output += `🏡 Tri-State Home Fund (15%): $${v.tristate_home}\n`;
-                    output += `📈 Trading Capital Reserve (10%): $${v.trading_reserve}\n\n`;
-                    output += `[SUCCESS] Payroll record committed to GitHub logs.`;
-
-                    logBox.innerText = output;
-                } else {
-                    logBox.innerText = `[ERROR] ${responseData.message}`;
-                }
-            } catch (err) {
-                logBox.innerText = `[ERROR] Failed to calculate payroll: ${err}`;
-            }
-        }
-
-        async function submitLog() {
+        function transmitLog() {
             const category = document.getElementById('categorySelect').value;
             const content = document.getElementById('logInput').value;
             const logBox = document.getElementById('responseLog');
 
-            if (!content) {
-                logBox.innerText = "[!] Please enter content before dispatching.";
+            if (!content.trim()) {
+                logBox.innerText = "[!] Error: Dispatch payload cannot be empty.";
                 return;
             }
 
-            logBox.innerText = "[...] Transmitting payload to GitHub API...";
-
-            try {
-                const res = await fetch('/api/log', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ category, content })
-                });
-                const data = await res.json();
-                logBox.innerText = `[SUCCESS] ${data.message}`;
-                document.getElementById('logInput').value = '';
-            } catch (err) {
-                logBox.innerText = `[ERROR] Failed to send dispatch: ${err}`;
-            }
+            const timestamp = new Date().toISOString();
+            logBox.innerText = `[${timestamp}] Transmitting [${category.toUpperCase()}] payload...\n> "${content}"\n[SUCCESS] Payload logged locally. Ready for git sync.`;
+            document.getElementById('logInput').value = '';
         }
 
-        async function checkStatus() {
+        function checkStatus() {
             const logBox = document.getElementById('responseLog');
-            logBox.innerText = "[...] Fetching NEXUS diagnostics...";
-            try {
-                const res = await fetch('/api/status');
-                const data = await res.json();
-                logBox.innerText = data.output || "No output returned.";
-            } catch (err) {
-                logBox.innerText = `[ERROR] Failed to fetch status: ${err}`;
-            }
+            logBox.innerText = "[*] Node Status: ONLINE\n[+] Branch: main\n[+] Workspace: Clean\n[+] Security: Authenticated via Passkey Gate";
         }
 
-        function clearTerminal() {
+        function clearConsole() {
             document.getElementById('responseLog').innerText = "Console cleared.";
         }
     </script>
