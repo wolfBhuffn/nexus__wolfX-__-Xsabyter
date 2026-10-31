@@ -14,7 +14,6 @@ def validate_environment():
         print("[-] Warning: config/.env.example template not found.")
         return
 
-    # Simple key parser
     def get_keys(file_path):
         keys = set()
         with open(file_path, "r") as f:
@@ -34,6 +33,6 @@ def validate_environment():
         print("[+] Active .env contains all template keys.")
 
 if __name__ == "__main__":
-    print("=== nexus__wolfX-__-Xsabyter Env Validator ===")
+    print("=== WOLFx_xSABYTER_V2 Env Validator ===")
     validate_environment()
     print("=============================================")
