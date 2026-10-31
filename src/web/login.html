@@ -64,10 +64,9 @@
                 return;
             }
 
-            // Simple client-side gateway handshake check (can be hooked to backend API later)
             if (key === "wolfsabyter2026" || key === "admin") {
                 errorMsg.style.color = "#10b981";
-                errorMsg.innerText = "[+] Access granted. Redirecting to command center...";
+                errorMsg.innerText = "[+] Access granted. Redirecting...";
                 setTimeout(() => {
                     window.location.href = "index.html";
                 }, 800);
@@ -77,7 +76,6 @@
             }
         }
 
-        // Allow pressing Enter to submit
         document.getElementById('passkey').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 authenticate();
