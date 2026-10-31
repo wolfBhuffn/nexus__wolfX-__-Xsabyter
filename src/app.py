@@ -6,6 +6,7 @@ class ReusableHTTPServer(HTTPServer):
 
 class CommandCenterHandler(SimpleHTTPRequestHandler):
     def translate_path(self, path):
+        # Redirect root and direct index requests to the login page first
         if path == '/' or path == '/index.html':
             path = '/src/web/login.html'
         else:
@@ -16,7 +17,7 @@ def run(server_class=ReusableHTTPServer, handler_class=CommandCenterHandler, por
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     print(f"[+] Wolf Command Hub active at http://localhost:{port}")
-    print(f"[+] Serving secure login portal from src/web/login.html")
+    print(f"[+] Root locked to secure login portal: src/web/login.html")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
